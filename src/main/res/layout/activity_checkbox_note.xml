@@ -28,27 +28,33 @@
             android:textSize="20sp"/>
 
         <RelativeLayout
+            android:id="@+id/rl_note"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible"
-            android:id="@+id/rl_note">
+            android:layout_height="wrap_content"
+            android:visibility="visible">
 
-                <EditText
-                    android:id="@+id/et_notes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Notes"
-                    android:textSize="15sp"/>
+            <EditText
+                android:id="@+id/et_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Notes"
+                android:textSize="15sp" />
 
 
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_dynamic_holder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
 
 
         <RelativeLayout
             android:id="@+id/rl_add_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="addIteminLayoutClicked"
+            android:onClick="addNewItemClicked"
             android:visibility="invisible">
 
             <ImageView
@@ -83,6 +89,7 @@
             android:id="@+id/ib_checkbox"
             android:layout_width="40dp"
             android:onClick="checkboxaddClicked"
+            android:layout_marginStart="30dp"
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/ic_add_checkbox"/>
         <TextView
