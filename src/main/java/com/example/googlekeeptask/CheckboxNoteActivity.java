@@ -33,9 +33,11 @@ public class CheckboxNoteActivity extends AppCompatActivity {
     RelativeLayout mRlAddItem;
     RelativeLayout mRlNote;
     LinearLayout mLlDynamicLayout;
+    DatabaseHelper dbhelper;
     private ArrayList<Items> items;
     private ArrayList<Items> retrievedItems;
     private int row = 0;
+    private EditText mEtTitle;
 
 
     @Override
@@ -73,6 +75,10 @@ public class CheckboxNoteActivity extends AppCompatActivity {
         mLlDynamicLayout = findViewById(R.id.ll_dynamic_holder);
         Toolbar mCBtoolbar = findViewById(R.id.tl_cb_toolbar);
         ImageButton mAddCheckbox = findViewById(R.id.ib_checkbox);
+
+        mEtTitle = findViewById(R.id.et_title);
+
+
         setSupportActionBar(mCBtoolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -81,7 +87,7 @@ public class CheckboxNoteActivity extends AppCompatActivity {
         items = new ArrayList<>();
         retrievedItems = new ArrayList<>();
     }
-
+    String title = mEtTitle.getText().toString();
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.checkbox_tool_menu, menu);
@@ -142,7 +148,14 @@ public class CheckboxNoteActivity extends AppCompatActivity {
             }
             Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size" + retrievedItems.size(), Toast.LENGTH_SHORT).show();
             //insertion method
+            RemainderItems notes = new RemainderItems();
+            notes.id = 1;
+            notes.title = title;
+            notes.items = itemArrayValue;
+            dbhelper.insertDataToDatabase(notes,dbhelper.getWritableDatabase());
         }
+
+
     }
 //Todo when AddCheckbox button is Clicked
     public void checkboxaddClicked(View view) {
