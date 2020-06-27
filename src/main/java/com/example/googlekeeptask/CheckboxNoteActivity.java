@@ -92,36 +92,7 @@ public class CheckboxNoteActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                JSONArray itemsArray = new JSONArray();
-                for ( Items cbitem : items){
-                    try {
-                        JSONObject jsonObject = new JSONObject();
-                        jsonObject.put("itemid",cbitem.itemId);
-                        jsonObject.put("itemname",cbitem.itemName);
-                        jsonObject.put("ischecked",cbitem.isChecked);
-                    }catch (JSONException e){
-                        e.printStackTrace();
-                    }
-                }
-
-                String itemArrayValue = itemsArray.toString();
-                Log.i("JSON Array", itemsArray.toString());
-                try {
-                    JSONArray retrieveItemArray = new JSONArray(itemArrayValue);
-                    for (int i = 0;i < retrieveItemArray.length();i++){
-                        JSONObject currentObject = retrieveItemArray.getJSONObject(i);
-                        Items retrievedItem  = new Items();
-                        retrievedItem.itemId = currentObject.optInt("itemid");
-                        retrievedItem.itemName = currentObject.optString("itemname");
-                        retrievedItem.isChecked = currentObject.optBoolean("ischecked");
-
-                        retrievedItems.add(retrievedItem);
-                    }
-                }catch (JSONException e){
-                    e.printStackTrace();
-                }
-                Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size"+retrievedItems.size(), Toast.LENGTH_SHORT).show();
-                onBackPressed();
+               onBackPressed();
                 break;
             case R.id.action_pin:
                 startActivity(new Intent(CheckboxNoteActivity.this, MainActivity.class));
@@ -129,8 +100,49 @@ public class CheckboxNoteActivity extends AppCompatActivity {
             case R.id.action_add_reminder:
                 Toast.makeText(CheckboxNoteActivity.this, "Remainder is pressed", Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.action_done:
+                onDoneClicked();
+                break;
         }
         return true;
+    }
+    private void onDoneClicked(){
+
+        if(items.size() > 0) {
+            JSONArray itemsArray = new JSONArray();
+            for (Items cbitem : items) {
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("itemid", cbitem.itemId);
+                    jsonObject.put("itemname", cbitem.itemName);
+                    jsonObject.put("ischecked", cbitem.isChecked);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+
+            String itemArrayValue = itemsArray.toString();
+
+            Log.i("JSON Array", itemsArray.toString());
+            try {
+                JSONArray retrieveItemArray = new JSONArray(itemArrayValue);
+                for (int i = 0; i < retrieveItemArray.length(); i++) {
+                    JSONObject currentObject = retrieveItemArray.getJSONObject(i);
+
+                    Items retrievedItem = new Items();
+                    retrievedItem.itemId = currentObject.optInt("itemid");
+                    retrievedItem.itemName = currentObject.optString("itemname");
+                    retrievedItem.isChecked = currentObject.optBoolean("ischecked");
+
+                    retrievedItems.add(retrievedItem);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size" + retrievedItems.size(), Toast.LENGTH_SHORT).show();
+            //insertion method
+        }
     }
 //Todo when AddCheckbox button is Clicked
     public void checkboxaddClicked(View view) {
@@ -186,6 +198,9 @@ public class CheckboxNoteActivity extends AppCompatActivity {
                 cbitem.itemName = mEtListItem.getText().toString();
                 cbitem.isChecked = false;
                 items.add(cbitem);
+
+                Toast.makeText(CheckboxNoteActivity.this, "Items Size = "+items.size()
+                        +"Retrieved Items"+retrievedItems.size(), Toast.LENGTH_SHORT).show();
             }
         });
 
