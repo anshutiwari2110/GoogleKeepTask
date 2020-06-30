@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="165dp"
-    android:layout_height="300dp"
+    android:id="@+id/cv_notes"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="5dp"
     android:layout_marginEnd="5dp"
     android:orientation="vertical"
     android:padding="14dp"
@@ -10,18 +12,40 @@
     app:cardElevation="5dp">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="165dp"
-        android:layout_height="300dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_title"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp" />
+            android:layout_height="?attr/actionBarSize">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_toStartOf="@+id/iv_trash"
+                android:background="#ffffff"
+                android:textSize="15sp" />
+
+            <ImageView
+                android:id="@+id/iv_trash"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="20dp"
+                android:src="@drawable/ic_delete" />
+
+
+        </RelativeLayout>
 
         <LinearLayout
-            android:id="@+id/ll_dynamic_holder_item"
+            android:id="@+id/ll_item_holder"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical" />

@@ -49,11 +49,10 @@
 
             <ImageView
                 android:id="@+id/iv_add_checkbox"
-                android:onClick="onAddCheckboxClicked"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:backgroundTint="@drawable/bottom_nav_selector"
+                android:onClick="onAddCheckboxClicked"
                 android:src="@drawable/ic_checkbox" />
 
             <ImageView
@@ -63,7 +62,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="22dp"
                 android:layout_toEndOf="@+id/iv_add_checkbox"
-                android:backgroundTint="@drawable/bottom_nav_selector"
                 android:src="@drawable/ic_brush" />
 
             <ImageView
@@ -73,7 +71,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="22dp"
                 android:layout_toEndOf="@+id/iv_add_paint"
-                android:backgroundTint="@drawable/bottom_nav_selector"
                 android:src="@drawable/ic_mic" />
 
             <ImageView
@@ -83,7 +80,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="22dp"
                 android:layout_toEndOf="@+id/iv_add_audio"
-                android:backgroundTint="@drawable/bottom_nav_selector"
                 android:src="@drawable/ic_photo" />
 
         </RelativeLayout>

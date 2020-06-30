@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -29,15 +30,18 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class CheckboxNoteActivity extends AppCompatActivity {
-    RelativeLayout mRlAddItem;
-    RelativeLayout mRlNote;
-    LinearLayout mLlDynamicLayout;
-    DatabaseHelper dbhelper;
+public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
+    private RelativeLayout mRlAddItem;
+    private RelativeLayout mRlNote;
+    private LinearLayout mLlDynamicLayout;
+    private DatabaseHelper dbhelper;
     private ArrayList<Items> items;
     private ArrayList<Items> retrievedItems;
     private int row = 0;
+    private int noteid = 0;
     private EditText mEtTitle;
+
+
 
 
     @Override
@@ -45,7 +49,7 @@ public class CheckboxNoteActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkbox_note);
 
-//Todo to add date use dd/mm/yyyy in SimpleDateFormat
+        //To add date use dd/mm/yyyy in SimpleDateFormat
         Thread thread = new Thread() {
             @Override
             public void run() {
@@ -69,7 +73,8 @@ public class CheckboxNoteActivity extends AppCompatActivity {
             }
         };
         thread.start();
-//Function used to add time in TextView
+        //Function used to add time in TextView
+
         mRlAddItem = findViewById(R.id.rl_add_item);
         mRlNote = findViewById(R.id.rl_note);
         mLlDynamicLayout = findViewById(R.id.ll_dynamic_holder);
@@ -77,7 +82,15 @@ public class CheckboxNoteActivity extends AppCompatActivity {
         ImageButton mAddCheckbox = findViewById(R.id.ib_checkbox);
 
         mEtTitle = findViewById(R.id.et_title);
+        dbhelper = new DatabaseHelper(CheckboxNoteActivity.this);
+     /*   Bundle data = getIntent().getExtras();
+        isEdit = data.getBoolean("IS_EDIT");
+        editNotes = (RemainderItems) data.getSerializable("NOTES");
 
+        if(isEdit){
+            mEtTitle.setText(editNotes.title);
+            mEtListItem.setText(editNotes.items);
+        }*/
 
         setSupportActionBar(mCBtoolbar);
         if (getSupportActionBar() != null) {
@@ -87,18 +100,19 @@ public class CheckboxNoteActivity extends AppCompatActivity {
         items = new ArrayList<>();
         retrievedItems = new ArrayList<>();
     }
-    String title = mEtTitle.getText().toString();
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.checkbox_tool_menu, menu);
         return true;
     }
+    // Todo toolbar option switch case
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-               onBackPressed();
+                startActivity(new Intent(CheckboxNoteActivity.this, MainActivity.class));
                 break;
             case R.id.action_pin:
                 startActivity(new Intent(CheckboxNoteActivity.this, MainActivity.class));
@@ -108,13 +122,16 @@ public class CheckboxNoteActivity extends AppCompatActivity {
                 break;
             case R.id.action_done:
                 onDoneClicked();
+                noteid++;
                 break;
         }
         return true;
     }
-    private void onDoneClicked(){
 
-        if(items.size() > 0) {
+    //To enter data in database
+    private void onDoneClicked() {
+
+        if (items.size() > 0) {
             JSONArray itemsArray = new JSONArray();
             for (Items cbitem : items) {
                 try {
@@ -122,6 +139,7 @@ public class CheckboxNoteActivity extends AppCompatActivity {
                     jsonObject.put("itemid", cbitem.itemId);
                     jsonObject.put("itemname", cbitem.itemName);
                     jsonObject.put("ischecked", cbitem.isChecked);
+                    itemsArray.put(jsonObject);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -146,18 +164,25 @@ public class CheckboxNoteActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size" + retrievedItems.size(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size = " + retrievedItems.size(), Toast.LENGTH_SHORT).show();
             //insertion method
+            String title = mEtTitle.getText().toString();
             RemainderItems notes = new RemainderItems();
-            notes.id = 1;
+            notes.id = noteid;
             notes.title = title;
             notes.items = itemArrayValue;
-            dbhelper.insertDataToDatabase(notes,dbhelper.getWritableDatabase());
+
+                dbhelper.insertDataToDatabase(notes, dbhelper.getWritableDatabase());
+            /*
+                dbhelper.updateDataToDatabase(notes,dbhelper.getWritableDatabase());
+                setResult(Activity.RESULT_OK);
+                finish();
+            */
         }
 
-
     }
-//Todo when AddCheckbox button is Clicked
+
+    //When AddCheckbox button is Clicked
     public void checkboxaddClicked(View view) {
         mRlNote.setVisibility(View.GONE);
         mRlAddItem.setVisibility(View.VISIBLE);
@@ -165,14 +190,15 @@ public class CheckboxNoteActivity extends AppCompatActivity {
 
     //For Adding Cell to the relative layout
 
-    public void addNewItemClicked(View view){
+    public void addNewItemClicked(View view) {
 //        Toast.makeText(CheckboxNoteActivity.this, "RelativeLayout Clicked Successfully", Toast.LENGTH_SHORT).show();
         addNewListItem();
     }
 
+    //For adding in each cell
     private void addNewListItem() {
-        mRlAddItem.setEnabled(false);
-        View view = LayoutInflater.from(CheckboxNoteActivity.this).inflate(R.layout.cell_item_edit,null);
+
+        View view = LayoutInflater.from(CheckboxNoteActivity.this).inflate(R.layout.cell_item_edit, null);
         final CheckBox checkBox = view.findViewById(R.id.chk_edit_item);
         final EditText mEtListItem = view.findViewById(R.id.et_edit_item);
         final ImageView mIvAddItem = view.findViewById(R.id.iv_add_item);
@@ -190,15 +216,15 @@ public class CheckboxNoteActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if(s.length() > 1){
+                if (s.length() > 1) {
                     mIvAddItem.setVisibility(View.VISIBLE);
-                }else{
+                } else {
                     mIvAddItem.setVisibility(View.INVISIBLE);
                 }
 
             }
         });
-
+        //Successfully insert an item
         mIvAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,13 +233,13 @@ public class CheckboxNoteActivity extends AppCompatActivity {
                 mIvAddItem.setVisibility(View.INVISIBLE);
 
                 Items cbitem = new Items();
-                cbitem.itemId = row ;
+                cbitem.itemId = row;
                 cbitem.itemName = mEtListItem.getText().toString();
-                cbitem.isChecked = false;
+                cbitem.isChecked = checkBox.isChecked();
                 items.add(cbitem);
 
-                Toast.makeText(CheckboxNoteActivity.this, "Items Size = "+items.size()
-                        +"Retrieved Items"+retrievedItems.size(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CheckboxNoteActivity.this, "Items Size = " + items.size()
+                        + "Retrieved Items = " + retrievedItems.size(), Toast.LENGTH_SHORT).show();
             }
         });
 
