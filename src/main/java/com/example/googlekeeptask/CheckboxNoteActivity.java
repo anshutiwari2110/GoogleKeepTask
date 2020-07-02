@@ -5,7 +5,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -14,12 +16,17 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,8 +47,7 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
     private int row = 0;
     private int noteid = 0;
     private EditText mEtTitle;
-
-
+    private Dialog dialog;
 
 
     @Override
@@ -118,7 +124,7 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
                 startActivity(new Intent(CheckboxNoteActivity.this, MainActivity.class));
                 break;
             case R.id.action_add_reminder:
-                Toast.makeText(CheckboxNoteActivity.this, "Remainder is pressed", Toast.LENGTH_SHORT).show();
+                addToReminder();
                 break;
             case R.id.action_done:
                 onDoneClicked();
@@ -126,6 +132,54 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
                 break;
         }
         return true;
+    }
+    //TODO add reminder Clicked dialog
+    private void addToReminder() {
+
+        dialog = new Dialog(CheckboxNoteActivity.this);
+        dialog.setContentView(R.layout.reminder_dialog);
+        dialog.show();
+        final LinearLayout mLlreminderTime =dialog.findViewById(R.id.ll_reminder_time);
+        final LinearLayout mLlreminderPlace =dialog.findViewById(R.id.ll_reminder_place);
+        Button mDialogCancel = dialog.findViewById(R.id.btn_reminder_cancel);
+        Button mDialogSave = dialog.findViewById(R.id.btn_reminder_save);
+        RadioGroup mReminderRadio = dialog.findViewById(R.id.radiogrp_reminder);
+        final RadioButton mRadioTime = dialog.findViewById(R.id.radio_time);
+        RadioButton mRadioPlace = dialog.findViewById(R.id.radio_place);
+        Spinner mDateSpinner = dialog.findViewById(R.id.sp_reminder_date);
+        Spinner mTimeSpinner = dialog.findViewById(R.id.sp_reminder_time);
+
+
+        // To set reminder according to time or place
+        mReminderRadio.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if(checkedId == R.id.radio_time){
+                    mLlreminderTime.setVisibility(View.VISIBLE);
+                    mLlreminderPlace.setVisibility(View.GONE);
+                    Toast.makeText(CheckboxNoteActivity.this, "Reminder using time", Toast.LENGTH_SHORT).show();
+                }else{
+                    mLlreminderTime.setVisibility(View.GONE);
+                    mLlreminderPlace.setVisibility(View.VISIBLE);
+                    Toast.makeText(CheckboxNoteActivity.this, "Reminder using place", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        ArrayAdapter<CharSequence> arrayAdapter = ArrayAdapter.createFromResource(this,R.array.reminder_date,android.R.layout.simple_spinner_item);
+        arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mDateSpinner.setAdapter(arrayAdapter);
+
+        ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this,R.array.reminder_time,android.R.layout.simple_spinner_item);
+        timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mTimeSpinner.setAdapter(timeAdapter);
+
+        mDialogCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
 
     //To enter data in database
@@ -172,7 +226,7 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
             notes.title = title;
             notes.items = itemArrayValue;
 
-                dbhelper.insertDataToDatabase(notes, dbhelper.getWritableDatabase());
+            dbhelper.insertDataToDatabase(notes, dbhelper.getWritableDatabase());
             /*
                 dbhelper.updateDataToDatabase(notes,dbhelper.getWritableDatabase());
                 setResult(Activity.RESULT_OK);
@@ -228,14 +282,14 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
         mIvAddItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mEtListItem.setEnabled(false);
+                mEtListItem.setEnabled(true);
                 mRlAddItem.setEnabled(true);
                 mIvAddItem.setVisibility(View.INVISIBLE);
 
                 Items cbitem = new Items();
                 cbitem.itemId = row;
                 cbitem.itemName = mEtListItem.getText().toString();
-                cbitem.isChecked = checkBox.isChecked();
+                cbitem.isChecked = true;
                 items.add(cbitem);
 
                 Toast.makeText(CheckboxNoteActivity.this, "Items Size = " + items.size()

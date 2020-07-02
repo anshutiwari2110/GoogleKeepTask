@@ -8,6 +8,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
@@ -16,6 +17,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -25,12 +27,16 @@ import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, CheckBoxAdapter.NotesClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, BottomNavigationView.OnNavigationItemSelectedListener,CheckBoxAdapter.NotesClickListener {
 
     DrawerLayout drawerLayout;
     RecyclerView mRcNoteList;
     DatabaseHelper dbHelper;
     FloatingActionButton mFABadd;
+    BottomNavigationView dashboardBottomNav;
+    NavigationView navigationView;
+    ImageButton mImgBtnLinear;
+    ImageButton mImgBtnGrid;
 
 
     @Override
@@ -42,51 +48,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         drawerLayout = findViewById(R.id.drawer_layout);
         mRcNoteList = findViewById(R.id.rc_note_list);
-        ImageView mAddCheckbox = findViewById(R.id.iv_add_checkbox);
-        ImageView mAddPaint = findViewById(R.id.iv_add_paint);
-        ImageView mAddAudio = findViewById(R.id.iv_add_audio);
-        ImageView mAddPhoto = findViewById(R.id.ic_add_photo);
+        mImgBtnLinear = findViewById(R.id.ib_linear_view);
+        mImgBtnGrid = findViewById(R.id.ib_grid_view);
         mFABadd = findViewById(R.id.fab_add);
 
-      //  mRcNoteList.setLayoutManager(new GridLayoutManager(this,2));
-        mRcNoteList.setLayoutManager(new StaggeredGridLayoutManager(2,RecyclerView.VERTICAL));
+
+        mRcNoteList.setLayoutManager(new StaggeredGridLayoutManager(2, RecyclerView.VERTICAL));
         dbHelper = new DatabaseHelper(this);
         getDataFromDatabase();
-        NavigationView navigationView = findViewById(R.id.navView);
+        navigationView = findViewById(R.id.navView);
+        dashboardBottomNav = findViewById(R.id.dashboard_bottom_nav);
+        dashboardBottomNav.setOnNavigationItemSelectedListener(this);
         View headerView = navigationView.inflateHeaderView(R.layout.drawer_header);
 
-        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,mToolbar,
-                R.string.open,R.string.close);
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, mToolbar,
+                R.string.open, R.string.close);
         drawerToggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
         mFABadd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,CheckboxNoteActivity.class));
+                startActivity(new Intent(MainActivity.this, CheckboxNoteActivity.class));
             }
         });
-
+        getDataFromDatabase();
     }
 
     private void getDataFromDatabase() {
         ArrayList<RemainderItems> notes = dbHelper.getDataFromDatabase(dbHelper.getReadableDatabase());
 
         CheckBoxAdapter adapter;
-        adapter = new CheckBoxAdapter(this,notes);
+        adapter = new CheckBoxAdapter(this, notes);
+        adapter.setListener(this);
         mRcNoteList.setAdapter(adapter);
     }
 
+    //DrawerNavigation
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-       drawerLayout.closeDrawer(GravityCompat.START);
-        switch (item.getItemId()){
+        drawerLayout.closeDrawer(GravityCompat.START);
+        dashboardBottomNav.getMenu().findItem(item.getItemId()).setChecked(true);
+        switch (item.getItemId()) {
             case R.id.action_note:
-                startActivity(new Intent(this,MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 break;
             case R.id.action_reminders:
-                Toast.makeText(MainActivity.this, "RemainderClicked", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(MainActivity.this,ReminderActivity.class));
                 break;
             case R.id.action_create_new_label:
                 Toast.makeText(MainActivity.this, "Create New Label", Toast.LENGTH_SHORT).show();
@@ -103,6 +112,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.action_help:
                 Toast.makeText(MainActivity.this, "HelpClicked", Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.action_add_new_list:
+                startActivity(new Intent(MainActivity.this, CheckboxNoteActivity.class));
+                break;
 
         }
 
@@ -110,19 +122,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-    public void onAddCheckboxClicked(View view){
-        startActivity(new Intent(MainActivity.this,CheckboxNoteActivity.class));
-    }
+//    public void onAddCheckboxClicked(View view){
+//
+//    }
 
 
-   /* @Override
-    public void onCardClicked(RemainderItems notes) {
-        Intent viewCardIntent = new Intent(MainActivity.this,CheckboxNoteActivity.class);
-        viewCardIntent.putExtra("NOTES", notes);
-        viewCardIntent.putExtra("IS_EDIT", true);
-        startActivityForResult(viewCardIntent,1001);*/
 
-   // }
+//    @Override
+//    public void onCardClicked(RemainderItems notes) {
+//        Intent viewCardIntent = new Intent(MainActivity.this,CheckboxNoteActivity.class);
+//        viewCardIntent.putExtra("NOTES", notes);
+//        viewCardIntent.putExtra("IS_EDIT", true);
+//        startActivityForResult(viewCardIntent,1001);
+//
+//     }
 
     @Override
     public void onDeleteClicked(RemainderItems notes) {
@@ -131,13 +144,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-/*
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1001 && resultCode == Activity.RESULT_OK){
-            getDataFromDatabase();
-        }
-    }*/
+//
+//        @Override
+//        protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//            super.onActivityResult(requestCode, resultCode, data);
+//            if(requestCode == 1001 && resultCode == Activity.RESULT_OK){
+//                getDataFromDatabase();
+//            }
+//        }
+
+    public void onChangeToLinearView(View view) {
+        mImgBtnGrid.setVisibility(View.VISIBLE);
+        mImgBtnLinear.setVisibility(View.GONE);
+        mRcNoteList.setLayoutManager(new LinearLayoutManager(this,RecyclerView.VERTICAL,false));
+    }
+
+    public void onChangeToGridView(View view) {
+        mImgBtnGrid.setVisibility(View.GONE);
+        mImgBtnLinear.setVisibility(View.VISIBLE);
+        mRcNoteList.setLayoutManager(new StaggeredGridLayoutManager(2, RecyclerView.VERTICAL));
+    }
+
+
 }
 

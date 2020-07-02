@@ -1,6 +1,7 @@
 package com.example.googlekeeptask;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,17 +71,17 @@ public class CheckBoxAdapter extends RecyclerView.Adapter<CheckBoxAdapter.CheckB
             mChkView.isChecked();
             holder.mLlItemHolder.addView(view);
         }
+//
+//       holder.mCvNotes.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if(listener != null){
+//                    listener.onCardClicked(currentNotes);
+//                }
+//            }
+//        });
 
-      /*  holder.mCvNotes.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(listener != null){
-                    listener.onCardClicked(currentNotes);
-                }
-            }
-        });*/
-
-        holder.mIvDelete.setOnClickListener(new View.OnClickListener() {
+        holder.mIvTrash.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(listener != null){
@@ -99,13 +100,13 @@ public class CheckBoxAdapter extends RecyclerView.Adapter<CheckBoxAdapter.CheckB
     class CheckBoxHolder extends RecyclerView.ViewHolder{
         private TextView mTvTitle;
         private LinearLayout mLlItemHolder;
-        private ImageView mIvDelete;
+        private ImageView mIvTrash;
 
         public CheckBoxHolder(@NonNull View itemView) {
             super(itemView);
             mTvTitle = itemView.findViewById(R.id.tv_title);
             mLlItemHolder = itemView.findViewById(R.id.ll_item_holder);
-            mIvDelete = itemView.findViewById(R.id.iv_trash);
+            mIvTrash = itemView.findViewById(R.id.iv_trash);
         }
     }
 

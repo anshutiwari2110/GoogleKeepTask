@@ -2,4 +2,29 @@
     <string name="app_name">GoogleKeepTask</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string-array name="reminder_date">
+        <item>
+            Today
+        </item>
+
+        <item>
+            Tomorrow
+        </item>
+        <item>
+            Select date
+        </item>
+    </string-array>
+
+    <string-array name="reminder_time">
+        <item>
+            After 3 hours
+        </item>
+
+        <item>
+            After 12 hours
+        </item>
+        <item>
+            Select a time
+        </item>
+    </string-array>
 </resources>
