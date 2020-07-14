@@ -98,13 +98,13 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:id="@+id/fab_add"
             android:layout_gravity="bottom|right"
-            android:layout_margin="24dp"
-            android:background="@color/fab"
-            app:srcCompat="@drawable/ic_add" />
+            android:layout_margin="17dp"
+            />
+
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </androidx.drawerlayout.widget.DrawerLayout>

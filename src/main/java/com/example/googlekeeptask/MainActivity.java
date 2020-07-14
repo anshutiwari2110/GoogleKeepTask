@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     DrawerLayout drawerLayout;
     RecyclerView mRcNoteList;
     DatabaseHelper dbHelper;
+    NotesDatabaseHelper noteDBhelper;
     FloatingActionButton mFABadd;
     BottomNavigationView dashboardBottomNav;
     NavigationView navigationView;
@@ -53,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         mFABadd = findViewById(R.id.fab_add);
 
 
-        mRcNoteList.setLayoutManager(new StaggeredGridLayoutManager(2, RecyclerView.VERTICAL));
+
         dbHelper = new DatabaseHelper(this);
         getDataFromDatabase();
         navigationView = findViewById(R.id.navView);
@@ -77,9 +78,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void getDataFromDatabase() {
         ArrayList<RemainderItems> notes = dbHelper.getDataFromDatabase(dbHelper.getReadableDatabase());
+//        ArrayList<RemainderItems> newNotes = noteDBhelper.getNote(noteDBhelper.getReadableDatabase());
 
         CheckBoxAdapter adapter;
         adapter = new CheckBoxAdapter(this, notes);
+        mRcNoteList.setLayoutManager(new StaggeredGridLayoutManager(2, RecyclerView.VERTICAL));
         adapter.setListener(this);
         mRcNoteList.setAdapter(adapter);
     }
@@ -122,20 +125,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return false;
     }
 
-//    public void onAddCheckboxClicked(View view){
-//
-//    }
 
 
+    @Override
+    public void onTaskUpdate(RemainderItems remainderItems, Items items, boolean checked) {
+        ArrayList<Items> itemsArrayList = RemainderItems.convertItemsStringToArrayList(remainderItems.items);
+        for(Items itemsObj : itemsArrayList){
+            if(itemsObj.itemId == items.itemId){
+                itemsObj.isChecked = checked;
+            }
+        }
+        String itemArrayValue = RemainderItems.convertItemsListToString(itemsArrayList);
+        RemainderItems updatedNotes = new RemainderItems();
+        updatedNotes.id = remainderItems.id;
+        updatedNotes.items = remainderItems.items;
+        updatedNotes.title = remainderItems.title;
 
-//    @Override
-//    public void onCardClicked(RemainderItems notes) {
-//        Intent viewCardIntent = new Intent(MainActivity.this,CheckboxNoteActivity.class);
-//        viewCardIntent.putExtra("NOTES", notes);
-//        viewCardIntent.putExtra("IS_EDIT", true);
-//        startActivityForResult(viewCardIntent,1001);
-//
-//     }
+        dbHelper.updateDataToDatabase(updatedNotes,dbHelper.getWritableDatabase());
+        getDataFromDatabase();
+    }
 
     @Override
     public void onDeleteClicked(RemainderItems notes) {

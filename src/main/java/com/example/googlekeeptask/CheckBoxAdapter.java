@@ -6,8 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,41 +47,33 @@ public class CheckBoxAdapter extends RecyclerView.Adapter<CheckBoxAdapter.CheckB
     public void onBindViewHolder(@NonNull CheckBoxHolder holder, int position) {
         final RemainderItems currentNotes = notes.get(position);
         holder.mTvTitle.setText(currentNotes.title);
-        ArrayList<Items> viewItems = new ArrayList<>();
+        ArrayList<Items> viewItems = RemainderItems.convertItemsStringToArrayList(currentNotes.items);
 
-        try {
-            JSONArray ItemList = new JSONArray(currentNotes.items);
-            for(int i = 0; i < ItemList.length();i++){
-
-                JSONObject jsonObject = ItemList.optJSONObject(i);
-                Items newItem = new Items();
-                newItem.itemId = jsonObject.optInt("itemid");
-                newItem.itemName = jsonObject.optString("itemname");
-                newItem.isChecked = jsonObject.optBoolean("ischecked");
-                viewItems.add(newItem);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
         holder.mLlItemHolder.removeAllViews();
-        for (int i=0 ; i<viewItems.size();i++){
+        for (final Items items : viewItems){
             View view = LayoutInflater.from(context).inflate(R.layout.cell_item_view,null);
             TextView mTvView = view.findViewById(R.id.tv_view_item);
             CheckBox mChkView = view.findViewById(R.id.chk_view_item);
-            Items item = viewItems.get(i);
-            mTvView.setText(item.itemName);
-            mChkView.isChecked();
+            RelativeLayout mRlroot = view.findViewById(R.id.rl_view_root);
+
+            if(items.isChecked){
+                mChkView.setChecked(true);
+                mTvView.setPaintFlags(Paint.STRIKE_THRU_TEXT_FLAG);
+            }else{
+                mChkView.setChecked(false);
+            }
+
+
+            mTvView.setText(items.itemName);
+            mChkView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    listener.onTaskUpdate(currentNotes,items,isChecked);
+                }
+            });
             holder.mLlItemHolder.addView(view);
         }
-//
-//       holder.mCvNotes.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if(listener != null){
-//                    listener.onCardClicked(currentNotes);
-//                }
-//            }
-//        });
+
 
         holder.mIvTrash.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -111,7 +105,7 @@ public class CheckBoxAdapter extends RecyclerView.Adapter<CheckBoxAdapter.CheckB
     }
 
     public interface NotesClickListener{
-    //    void onCardClicked(RemainderItems notes);
+        void onTaskUpdate(RemainderItems remainderItems,Items items,boolean checked);
 
         void onDeleteClicked(RemainderItems notes);
     }

@@ -16,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -37,15 +38,18 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
-public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
+public class CheckboxNoteActivity extends AppCompatActivity {
     private RelativeLayout mRlAddItem;
     private RelativeLayout mRlNote;
     private LinearLayout mLlDynamicLayout;
     private DatabaseHelper dbhelper;
+    private NotesDatabaseHelper notedbhelper;
+    private EditText mEtNotes;
     private ArrayList<Items> items;
     private ArrayList<Items> retrievedItems;
     private int row = 0;
     private int noteid = 0;
+    private int flag = 0;
     private EditText mEtTitle;
     private Dialog dialog;
 
@@ -88,15 +92,19 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
         ImageButton mAddCheckbox = findViewById(R.id.ib_checkbox);
 
         mEtTitle = findViewById(R.id.et_title);
+        mEtNotes = findViewById(R.id.et_notes);
         dbhelper = new DatabaseHelper(CheckboxNoteActivity.this);
-     /*   Bundle data = getIntent().getExtras();
-        isEdit = data.getBoolean("IS_EDIT");
-        editNotes = (RemainderItems) data.getSerializable("NOTES");
-
-        if(isEdit){
-            mEtTitle.setText(editNotes.title);
-            mEtListItem.setText(editNotes.items);
-        }*/
+        notedbhelper = new NotesDatabaseHelper(this);
+//
+//         Bundle data = getIntent().getExtras();
+//        boolean isEdit = data.getBoolean("IS_EDIT");
+//
+//        RemainderItems editNotes = (RemainderItems) data.getSerializable("NOTES");
+//
+//        if(!isEdit){
+//            mEtTitle.setText(editNotes.title);
+//
+//        }
 
         setSupportActionBar(mCBtoolbar);
         if (getSupportActionBar() != null) {
@@ -170,6 +178,7 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mDateSpinner.setAdapter(arrayAdapter);
 
+
         ArrayAdapter<CharSequence> timeAdapter = ArrayAdapter.createFromResource(this,R.array.reminder_time,android.R.layout.simple_spinner_item);
         timeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mTimeSpinner.setAdapter(timeAdapter);
@@ -185,59 +194,40 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
     //To enter data in database
     private void onDoneClicked() {
 
-        if (items.size() > 0) {
-            JSONArray itemsArray = new JSONArray();
-            for (Items cbitem : items) {
-                try {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("itemid", cbitem.itemId);
-                    jsonObject.put("itemname", cbitem.itemName);
-                    jsonObject.put("ischecked", cbitem.isChecked);
-                    itemsArray.put(jsonObject);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
+//       if(flag == 1)
+//       {
+           if (items.size() > 0) {
 
 
-            String itemArrayValue = itemsArray.toString();
+               //insertion method
+               String title = mEtTitle.getText().toString();
+               String itemString = RemainderItems.convertItemsListToString(items);
+               RemainderItems notes = new RemainderItems();
 
-            Log.i("JSON Array", itemsArray.toString());
-            try {
-                JSONArray retrieveItemArray = new JSONArray(itemArrayValue);
-                for (int i = 0; i < retrieveItemArray.length(); i++) {
-                    JSONObject currentObject = retrieveItemArray.getJSONObject(i);
+               notes.title = title;
+               notes.items = itemString;
 
-                    Items retrievedItem = new Items();
-                    retrievedItem.itemId = currentObject.optInt("itemid");
-                    retrievedItem.itemName = currentObject.optString("itemname");
-                    retrievedItem.isChecked = currentObject.optBoolean("ischecked");
+               dbhelper.insertDataToDatabase(notes, dbhelper.getWritableDatabase());
 
-                    retrievedItems.add(retrievedItem);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size = " + retrievedItems.size(), Toast.LENGTH_SHORT).show();
-            //insertion method
-            String title = mEtTitle.getText().toString();
-            RemainderItems notes = new RemainderItems();
-            notes.id = noteid;
-            notes.title = title;
-            notes.items = itemArrayValue;
+               Toast.makeText(CheckboxNoteActivity.this, "Retrieved Item Size = " + retrievedItems.size(), Toast.LENGTH_SHORT).show();
+       }
 
-            dbhelper.insertDataToDatabase(notes, dbhelper.getWritableDatabase());
-            /*
-                dbhelper.updateDataToDatabase(notes,dbhelper.getWritableDatabase());
-                setResult(Activity.RESULT_OK);
-                finish();
-            */
-        }
+       // }
+
+//       else{
+//           String title = mEtTitle.getText().toString();
+//           String content = mEtNotes.getText().toString();
+//           RemainderItems newContent = new RemainderItems();
+//           newContent.title = title;
+//           newContent.items = content;
+//           notedbhelper.insertNote(newContent,notedbhelper.getWritableDatabase());
+//       }
 
     }
 
     //When AddCheckbox button is Clicked
     public void checkboxaddClicked(View view) {
+        flag++;
         mRlNote.setVisibility(View.GONE);
         mRlAddItem.setVisibility(View.VISIBLE);
     }
@@ -289,7 +279,7 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
                 Items cbitem = new Items();
                 cbitem.itemId = row;
                 cbitem.itemName = mEtListItem.getText().toString();
-                cbitem.isChecked = true;
+                cbitem.isChecked = false;
                 items.add(cbitem);
 
                 Toast.makeText(CheckboxNoteActivity.this, "Items Size = " + items.size()
@@ -300,4 +290,6 @@ public class CheckboxNoteActivity<isEdit> extends AppCompatActivity {
 
         mLlDynamicLayout.addView(view);
     }
+
+
 }

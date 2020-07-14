@@ -49,6 +49,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(COL_ITEM, remainderItems.items);
 
         database.update(TABLE_NAME, cv, COL_ID + "=" + remainderItems.id, null);
+        database.close();
     }
 
     public ArrayList<RemainderItems> getDataFromDatabase(SQLiteDatabase database) {
